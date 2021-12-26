@@ -13,6 +13,7 @@ export const streamNewBlocksFromNodeToDb = () => {
       throw Error("Error emittted on newBlockHeaders subscription");
     }
     const { hash, number, parentHash } = header;
+    console.log(`received block header with hash ${hash}`);
     storeBlockFromNodeToDb(hash);
     confirmParentBlockInDb(parentHash, number);
   });
@@ -31,7 +32,7 @@ export const storeBlockFromNodeToDb = async (hash: string) => {
 
   const upsertResult = await getBlocksCollection().updateOne(
     { hash: block.hash },
-    { ...block, totalGasSpentInWei },
+    { $set: { ...block, totalGasSpentInWei } },
     { upsert: true }
   );
 
@@ -75,7 +76,7 @@ export const confirmParentBlockInDb = async (
   }
   const result = await getBlocksCollection().updateOne(
     { hash: blockToConfirm.hash },
-    { ...blockToConfirm, confirmed: true },
+    { $set: { ...blockToConfirm, confirmed: true } },
     { upsert: true }
   );
   if (!result.acknowledged) {

@@ -15,15 +15,20 @@ export const getBlockFromDb = async (hash: string) => {
 export const getTotalGasForDateRangeFromDb = async (start: Date, end: Date) => {
   const startStamp = dateToUTCDayUnixTimestamp(start);
   const endStamp = dateToUTCDayUnixTimestamp(end);
+  const toLog = await getBlocksCollection().find().toArray();
+
   const document = await getBlocksCollection()
-    .aggregate<{ totalGasSpentInWei: number; blocks: number }>([
+    .aggregate<{
+      totalGasSpentInWei: number;
+      blocks: number;
+    }>([
       {
         $match: {
           timestamp: {
             $gte: startStamp,
             $lt: endStamp,
           },
-          confirmed: true,
+          // confirmed: true,
         },
       },
       {
@@ -36,7 +41,7 @@ export const getTotalGasForDateRangeFromDb = async (start: Date, end: Date) => {
     ])
     .next();
   if (!document) {
-    throw "No document returned when aggregatig for total gas fee";
+    console.log("No document returned when aggregatig for total gas fee");
   }
   return document;
 };
@@ -44,14 +49,12 @@ export const getTotalGasForDateRangeFromDb = async (start: Date, end: Date) => {
 /** @description returns all stored blocks within the range of the given block numbers, including the blocks with those numbers, sorted by block number descending */
 export const getBlocksInBlockNumberRange = async (from: number, to: number) => {
   const result = await getBlocksCollection()
-    .find([
-      {
-        number: {
-          $gte: from,
-          $lte: to,
-        },
+    .find({
+      number: {
+        $gte: from,
+        $lte: to,
       },
-    ])
+    })
     .sort({ number: -1 })
     .toArray();
   return result;

@@ -1,5 +1,6 @@
 import http from 'http';
 
+import { setupCronJobForDailyReport } from './dailyReport';
 import { startup } from './startup';
 import { streamNewBlocksFromNodeToDb } from './syncBlocks';
 
@@ -15,5 +16,6 @@ const server = http.createServer((req, res) => {
 server.listen(port, hostname, async () => {
   await startup();
   streamNewBlocksFromNodeToDb();
+  setupCronJobForDailyReport();
   console.log(`Server running at http://${hostname}:${port}/`);
 });
