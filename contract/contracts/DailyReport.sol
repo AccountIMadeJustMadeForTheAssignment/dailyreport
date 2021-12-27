@@ -11,7 +11,7 @@ contract DailyReport is Ownable {
         uint256 day,
         uint256 blocksThatDay,
         uint256 gasFeeInWeiThatDay
-    ) external returns (bool success) {
+    ) external onlyOwner returns (bool success) {
         blocksPerDay[day] = blocksThatDay;
         gasFeeInWeiPerDay[day] = gasFeeInWeiThatDay;
         return true;
